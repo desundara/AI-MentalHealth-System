@@ -21,6 +21,7 @@
 .env
 node_modules/
 backend/.env
+backend/.env.example
 backend/node_modules/
 
 npm-debug.log*
