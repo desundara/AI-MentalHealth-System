@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-white dark:bg-ink-950 text-ink-900 dark:text-ink-50;
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl 
+           bg-verde-600 hover:bg-verde-700 active:bg-verde-800
+           text-white font-semibold text-sm tracking-wide
+           transition-all duration-200 shadow-md hover:shadow-lg
+           disabled:opacity-60 disabled:cursor-not-allowed;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border
+           bg-white dark:bg-ink-900
+           border-ink-200 dark:border-ink-700
+           text-ink-900 dark:text-ink-50
+           placeholder-ink-400 dark:placeholder-ink-500
+           focus:outline-none focus:ring-2 focus:ring-verde-500 focus:border-transparent
+           transition-all duration-200 text-sm;
+  }
+
+  .form-label {
+    @apply block text-xs font-semibold uppercase tracking-widest mb-2
+           text-ink-500 dark:text-ink-400;
+  }
+
+  .auth-card {
+    @apply bg-white dark:bg-ink-900 
+           border border-ink-100 dark:border-ink-800
+           rounded-2xl shadow-xl p-8
+           w-full max-w-md mx-auto animate-slide-up;
+  }
+
+  .error-box {
+    @apply flex items-start gap-3 p-4 rounded-xl
+           bg-red-50 dark:bg-red-950/30
+           border border-red-200 dark:border-red-800
+           text-red-700 dark:text-red-400 text-sm;
+  }
+}
