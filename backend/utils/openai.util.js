@@ -1,51 +1,74 @@
 const assessMood = async ({ mood_score, sleep_hours, stress_level, anxiety_level, symptoms, notes }) => {
-  try {
-    const prompt = `You are a mental health screening assistant. Analyze the following daily mood log and provide a structured assessment.
+    try {
+        const prompt = `You are a mental health screening assistant. Analyze the following daily mood log and provide a structured assessment.
 
-Mood Data:
-- Mood Score: ${mood_score}/10 (1=very bad, 10=excellent)
-- Sleep Hours: ${sleep_hours || 'Not provided'}
-- Stress Level: ${stress_level ? stress_level + '/10' : 'Not provided'}
-- Anxiety Level: ${anxiety_level ? anxiety_level + '/10' : 'Not provided'}
-- Symptoms: ${symptoms || 'None reported'}
-- User Notes: ${notes || 'None'}
+    Mood Data:
+    - Mood Score: ${mood_score}/10 (1=very bad, 10=excellent)
+    - Sleep Hours: ${sleep_hours || 'Not provided'}
+    - Stress Level: ${stress_level ? stress_level + '/10' : 'Not provided'}
+    - Anxiety Level: ${anxiety_level ? anxiety_level + '/10' : 'Not provided'}
+    - Symptoms: ${symptoms || 'None reported'}
+    - User Notes: ${notes || 'None'}
 
-Respond ONLY with a valid JSON object in this exact format (no extra text):
-{
-    "risk_level": "Low" or "Medium" or "High",
+    Respond ONLY with a valid JSON object in this exact format (no extra text, no markdown backticks):
+    {
+    "risk_level": "Low",
     "summary": "2-3 sentence analysis of the user mental state",
-    "suggestions": "3-4 practical coping suggestions separated by | character"
+    "suggestions": "suggestion one|suggestion two|suggestion three|suggestion four"
     }
 
-    Risk level guidelines:
-    - Low: mood 7-10, low stress/anxiety, good sleep
-    - Medium: mood 4-6, moderate stress/anxiety, some symptoms  
-    - High: mood 1-3, high stress/anxiety, multiple concerning symptoms`;
+    IMPORTANT: The suggestions field must use the pipe character | as separator between suggestions. Example: "Take a walk|Drink water|Sleep early|Talk to someone"
 
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+    Risk level rules:
+    - Low: mood 7-10, stress/anxiety below 5, good sleep, few symptoms
+    - Medium: mood 4-6, stress/anxiety 5-7, some symptoms
+    - High: mood 1-3, stress/anxiety 8-10, multiple concerning symptoms`;
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.OPENAI_API_KEY,
-            'anthropic-version': '2023-06-01'
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
         },
         body: JSON.stringify({
-            model: 'claude-haiku-4-5-20251001',
+            model: 'llama-3.1-8b-instant',
             max_tokens: 500,
-            messages: [{ role: 'user', content: prompt }]
+            temperature: 0.7,
+            messages: [
+            {
+                role: 'system',
+                content: 'You are a mental health screening assistant. Always respond with valid JSON only. Use pipe character | to separate suggestions.'
+            },
+            { role: 'user', content: prompt }
+            ]
         })
         });
 
         const data = await response.json();
-        const text = data.content?.[0]?.text || '';
+
+        if (data.error) {
+        console.error('Groq API error:', data.error);
+        throw new Error(data.error.message);
+        }
+
+        const text = data.choices?.[0]?.message?.content || '';
         const clean = text.replace(/```json|```/g, '').trim();
-        return JSON.parse(clean);
+        const parsed = JSON.parse(clean);
+
+        // Normalize suggestions — if comma separated convert to pipe
+        if (parsed.suggestions && !parsed.suggestions.includes('|')) {
+        parsed.suggestions = parsed.suggestions.split(',').map(s => s.trim()).join('|');
+        }
+
+        return parsed;
+
     } catch (err) {
-        console.error('AI assessment error:', err);
-        // Fallback rule-based assessment
+        console.error('AI assessment error:', err.message);
+
         let risk_level = 'Low';
         if (mood_score <= 3 || stress_level >= 8 || anxiety_level >= 8) risk_level = 'High';
         else if (mood_score <= 6 || stress_level >= 5 || anxiety_level >= 5) risk_level = 'Medium';
+
         return {
         risk_level,
         summary: 'Assessment based on your mood data. Please consider speaking with a counselor if you are struggling.',
