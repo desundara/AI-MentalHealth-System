@@ -39,11 +39,10 @@ const EyeIcon = ({ open }) => open ? (
         try {
         const res = await loginUser(form);
         login(res.data.token, res.data.user);
-        if (res.data.user.role === 'counselor') {
-            navigate('/counselor/dashboard');
-        } else {
-            navigate('/dashboard');
-        }
+        const role = res.data.user.role;
+        if (role === 'superadmin') navigate('/admin');
+        else if (role === 'counselor') navigate('/counselor/dashboard');
+        else navigate('/dashboard');
         } catch (err) {
         setError(err.response?.data?.message || 'Login failed. Please try again.');
         } finally {
@@ -52,34 +51,34 @@ const EyeIcon = ({ open }) => open ? (
     };
 
     return (
-        <div className="min-h-screen bg-ink-50 dark:bg-ink-950 flex flex-col transition-colors duration-300">
+        <div className="flex flex-col min-h-screen transition-colors duration-300 bg-ink-50 dark:bg-ink-950">
         {/* Top nav */}
-        <header className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
+        <header className="flex items-center justify-between w-full max-w-6xl px-6 py-4 mx-auto">
             <Logo size="md" />
             <ThemeToggle />
         </header>
 
         {/* Main content */}
-        <main className="flex-1 flex items-center justify-center px-4 py-8">
+        <main className="flex items-center justify-center flex-1 px-4 py-8">
             <div className="w-full max-w-md">
             {/* Decorative accent */}
-            <div className="h-1 w-12 rounded-full bg-verde-500 mb-8" />
+            <div className="w-12 h-1 mb-8 rounded-full bg-verde-500" />
 
             <div className="auth-card">
                 {/* Header */}
                 <div className="mb-8">
-                <h1 className="font-display font-bold text-2xl text-ink-900 dark:text-white mb-1"
+                <h1 className="mb-1 text-2xl font-bold font-display text-ink-900 dark:text-white"
                     style={{ fontFamily: 'Sora, sans-serif' }}>
                     Welcome back
                 </h1>
-                <p className="text-ink-500 dark:text-ink-400 text-sm">
+                <p className="text-sm text-ink-500 dark:text-ink-400">
                     Sign in to continue your wellness journey
                 </p>
                 </div>
 
                 {/* Success message */}
                 {successMsg && (
-                <div className="flex items-center gap-3 p-4 mb-6 rounded-xl bg-verde-50 dark:bg-verde-950/30 border border-verde-200 dark:border-verde-800 text-verde-700 dark:text-verde-400 text-sm">
+                <div className="flex items-center gap-3 p-4 mb-6 text-sm border rounded-xl bg-verde-50 dark:bg-verde-950/30 border-verde-200 dark:border-verde-800 text-verde-700 dark:text-verde-400">
                     <span>✓</span>
                     <span>{successMsg}</span>
                 </div>
@@ -87,7 +86,7 @@ const EyeIcon = ({ open }) => open ? (
 
                 {/* Error */}
                 {error && (
-                <div className="error-box mb-6">
+                <div className="mb-6 error-box">
                     <span className="flex-shrink-0 mt-0.5">⚠</span>
                     <span>{error}</span>
                 </div>
@@ -112,7 +111,7 @@ const EyeIcon = ({ open }) => open ? (
                 {/* Password */}
                 <div>
                     <div className="flex items-center justify-between mb-2">
-                    <label htmlFor="password" className="form-label mb-0">Password</label>
+                    <label htmlFor="password" className="mb-0 form-label">Password</label>
                     <a href="#!" className="text-xs text-verde-600 dark:text-verde-400 hover:underline">
                         Forgot password?
                     </a>
@@ -126,12 +125,12 @@ const EyeIcon = ({ open }) => open ? (
                         onChange={handleChange}
                         placeholder="Enter your password"
                         required
-                        className="input-field pr-12"
+                        className="pr-12 input-field"
                     />
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-600 dark:hover:text-ink-300 transition-colors"
+                        className="absolute transition-colors -translate-y-1/2 right-3 top-1/2 text-ink-400 hover:text-ink-600 dark:hover:text-ink-300"
                     >
                         <EyeIcon open={showPassword} />
                     </button>
@@ -142,7 +141,7 @@ const EyeIcon = ({ open }) => open ? (
                     <button type="submit" className="btn-primary" disabled={loading}>
                     {loading ? (
                         <>
-                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                         </svg>
@@ -153,25 +152,25 @@ const EyeIcon = ({ open }) => open ? (
                 </div>
                 </form>
 
-                <p className="mt-6 text-center text-sm text-ink-500 dark:text-ink-400">
+                <p className="mt-6 text-sm text-center text-ink-500 dark:text-ink-400">
                 No account yet?{' '}
-                <Link to="/register" className="text-verde-600 dark:text-verde-400 font-semibold hover:underline">
+                <Link to="/register" className="font-semibold text-verde-600 dark:text-verde-400 hover:underline">
                     Create one free
                 </Link>
                 </p>
             </div>
 
             {/* Tagline */}
-            <p className="text-center text-xs text-ink-400 dark:text-ink-600 mt-6">
+            <p className="mt-6 text-xs text-center text-ink-400 dark:text-ink-600">
                 Your mental wellness journey, guided & private.
             </p>
             </div>
         </main>
 
         {/* Side decoration for large screens */}
-        <div className="fixed right-0 top-0 h-full w-1/3 pointer-events-none hidden lg:block overflow-hidden">
+        <div className="fixed top-0 right-0 hidden w-1/3 h-full overflow-hidden pointer-events-none lg:block">
             <div className="absolute inset-0 bg-gradient-to-l from-verde-50 to-transparent dark:from-verde-950/20 dark:to-transparent" />
-            <svg viewBox="0 0 400 800" className="absolute right-0 top-0 h-full opacity-10 dark:opacity-5" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 400 800" className="absolute top-0 right-0 h-full opacity-10 dark:opacity-5" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="350" cy="200" r="180" stroke="#22c55e" strokeWidth="1.5"/>
             <circle cx="200" cy="500" r="240" stroke="#22c55e" strokeWidth="1"/>
             <circle cx="380" cy="680" r="120" stroke="#22c55e" strokeWidth="1"/>

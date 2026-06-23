@@ -7,27 +7,29 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 // Pages
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AdminPage from './pages/AdminPage';
+import MoodLogPage from './pages/MoodLogPage';
 
 // Placeholder pages (Week 2 onwards)
 import Logo from './components/common/Logo';
 import ThemeToggle from './components/common/ThemeToggle';
 
 const PlaceholderPage = ({ title, emoji, week }) => (
-  <div className="min-h-screen bg-ink-50 dark:bg-ink-950 transition-colors duration-300">
-    <header className="flex items-center justify-between px-6 py-4 border-b border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900">
+  <div className="min-h-screen transition-colors duration-300 bg-ink-50 dark:bg-ink-950">
+    <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-ink-100 dark:border-ink-800 dark:bg-ink-900">
       <Logo size="md" />
       <ThemeToggle />
     </header>
     <main className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-      <div className="text-6xl mb-6">{emoji}</div>
-      <h2 className="font-display text-3xl font-bold text-ink-900 dark:text-white mb-3"
+      <div className="mb-6 text-6xl">{emoji}</div>
+      <h2 className="mb-3 text-3xl font-bold font-display text-ink-900 dark:text-white"
           style={{ fontFamily: 'Sora, sans-serif' }}>
         {title}
       </h2>
-      <p className="text-ink-500 dark:text-ink-400 max-w-sm">
-        Coming in <span className="text-verde-600 dark:text-verde-400 font-semibold">{week}</span>. Stay tuned!
+      <p className="max-w-sm text-ink-500 dark:text-ink-400">
+        Coming in <span className="font-semibold text-verde-600 dark:text-verde-400">{week}</span>. Stay tuned!
       </p>
-      <div className="mt-8 h-1 w-16 rounded-full bg-verde-500 mx-auto" />
+      <div className="w-16 h-1 mx-auto mt-8 rounded-full bg-verde-500" />
     </main>
   </div>
 );
@@ -46,15 +48,21 @@ function App() {
             <Route path="/register"      element={<RegisterPage />} />
             <Route path="/unauthorized"  element={<UnauthorizedPage />} />
 
-            <Route path="/dashboard" element={
-              <ProtectedRoute roles={['user']}>
-                <UserDashboardPage />
-              </ProtectedRoute>
-            } />
-
             <Route path="/counselor/dashboard" element={
               <ProtectedRoute roles={['counselor']}>
                 <CounselorDashboardPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin" element={
+              <ProtectedRoute roles={['superadmin']}>
+                <AdminPage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/dashboard" element={
+              <ProtectedRoute roles={['user']}>
+                <MoodLogPage />
               </ProtectedRoute>
             } />
 
