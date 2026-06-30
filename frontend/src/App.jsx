@@ -2,17 +2,18 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Pages
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminPage from './pages/AdminPage';
 import MoodLogPage from './pages/MoodLogPage';
+import CounselorDashboard from './pages/CounselorDashboard';
 
 // Placeholder pages (Week 2 onwards)
 import Logo from './components/common/Logo';
 import ThemeToggle from './components/common/ThemeToggle';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 const PlaceholderPage = ({ title, emoji, week }) => (
   <div className="min-h-screen transition-colors duration-300 bg-ink-50 dark:bg-ink-950">
@@ -47,12 +48,6 @@ function App() {
             <Route path="/login"         element={<LoginPage />} />
             <Route path="/register"      element={<RegisterPage />} />
             <Route path="/unauthorized"  element={<UnauthorizedPage />} />
-
-            <Route path="/counselor/dashboard" element={
-              <ProtectedRoute roles={['counselor']}>
-                <CounselorDashboardPage />
-              </ProtectedRoute>
-            } />
             
             <Route path="/admin" element={
               <ProtectedRoute roles={['superadmin']}>
@@ -63,6 +58,12 @@ function App() {
             <Route path="/dashboard" element={
               <ProtectedRoute roles={['user']}>
                 <MoodLogPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/counselor/dashboard" element={
+              <ProtectedRoute roles={['counselor']}>
+                <CounselorDashboard />
               </ProtectedRoute>
             } />
 
