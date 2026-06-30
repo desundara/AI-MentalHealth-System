@@ -126,4 +126,45 @@ const createMoodLog = async (req, res) => {
     }
 };
 
-module.exports = { createMoodLog, getMyLogs, getTodayLog, getMoodStats };
+    // GET /api/mood/weekly-summary — current user's weekly summary
+    const getWeeklySummary = async (req, res) => {
+    try {
+        const pool = getPool();
+        const result = await pool.request()
+        .input('userId', sql.Int, req.user.id)
+        .query(`
+            SELECT
+            COUNT(*) AS total_logs,
+            AVG(CAST(mood_score AS FLOAT)) AS avg_mood,
+            AVG(CAST(stress_level AS FLOAT)) AS avg_stress,
+            AVG(CAST(anxiety_level AS FLOAT)) AS avg_anxiety,
+            AVG(CAST(sleep_hours AS FLOAT)) AS avg_sleep,
+            MIN(mood_score) AS lowest_mood,
+            MAX(mood_score) AS highest_mood
+            FROM MoodLogs
+            WHERE user_id = @userId
+            AND log_date >= DATEADD(DAY, -7, CAST(GETDATE() AS DATE))
+        `);
+
+        const riskCounts = await pool.request()
+        .input('userId', sql.Int, req.user.id)
+        .query(`
+            SELECT ai.risk_level, COUNT(*) AS count
+            FROM MoodLogs ml
+            INNER JOIN AIAssessments ai ON ai.log_id = ml.id
+            WHERE ml.user_id = @userId
+            AND ml.log_date >= DATEADD(DAY, -7, CAST(GETDATE() AS DATE))
+            GROUP BY ai.risk_level
+        `);
+
+        res.json({
+        summary: result.recordset[0],
+        riskBreakdown: riskCounts.recordset
+        });
+    } catch (err) {
+        console.error('getWeeklySummary error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+    };
+
+module.exports = { createMoodLog, getMyLogs, getTodayLog, getMoodStats, getWeeklySummary };
