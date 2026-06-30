@@ -3,6 +3,7 @@ import { getDashboardStats, getAlerts, resolveAlert, getCounselorUsers, getUserL
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/common/Logo';
 import ThemeToggle from '../components/common/ThemeToggle';
+import UserMoodChart from '../components/charts/UserMoodChart';
 
 const riskBadge = {
     Low:    'bg-verde-50 dark:bg-verde-950/30 text-verde-700 dark:text-verde-400 border-verde-200 dark:border-verde-800',

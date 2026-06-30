@@ -3,6 +3,8 @@ import { createMoodLog, getTodayLog } from '../services/mood.service';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/common/Logo';
 import ThemeToggle from '../components/common/ThemeToggle';
+import MoodTrendChart from '../components/charts/MoodTrendChart';
+import WeeklySummaryCard from '../components/charts/WeeklySummaryCard';
 
 const SYMPTOMS = [
   { label: 'Fatigue', emoji: '😴' },
@@ -291,6 +293,10 @@ const MoodLogPage = () => {
             <p className="pb-4 text-xs text-center text-ink-400 dark:text-ink-600">Your data is private and secure 🔒</p>
           </form>
         )}
+        <div className="mt-6 space-y-4">
+          <WeeklySummaryCard />
+          <MoodTrendChart />
+        </div>
       </main>
     </div>
   );
