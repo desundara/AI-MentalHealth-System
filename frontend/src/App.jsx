@@ -14,6 +14,7 @@ import CounselorDashboard from './pages/CounselorDashboard';
 import Logo from './components/common/Logo';
 import ThemeToggle from './components/common/ThemeToggle';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import IdleWarningModal from './components/common/IdleWarningModal';
 
 const PlaceholderPage = ({ title, emoji, week }) => (
   <div className="min-h-screen transition-colors duration-300 bg-ink-50 dark:bg-ink-950">
