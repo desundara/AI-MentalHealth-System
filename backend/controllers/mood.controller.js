@@ -1,5 +1,6 @@
 const { getPool, sql } = require('../config/db');
 const { assessMood } = require('../utils/openai.util');
+const { sendHighRiskAlert } = require('../utils/email.util');
 
 // POST /api/mood — create mood log + AI assessment
 const createMoodLog = async (req, res) => {
@@ -57,6 +58,27 @@ const createMoodLog = async (req, res) => {
             .input('message', sql.NVarChar, `User ${req.user.fullName} has been flagged as HIGH risk. Immediate attention recommended.`)
             .query(`INSERT INTO Alerts (user_id, log_id, risk_level, message)
                     VALUES (@userId, @logId, @risk_level, @message)`);
+
+        // Send email to all active counselors
+        const counselors = await pool.request()
+            .query(`SELECT email FROM Users WHERE role = 'counselor' AND is_active = 1`);
+
+        const userInfo = await pool.request()
+            .input('userId', sql.Int, userId)
+            .query(`SELECT full_name, email FROM Users WHERE id = @userId`);
+
+        const user = userInfo.recordset[0];
+
+        for (const counselor of counselors.recordset) {
+            await sendHighRiskAlert({
+            counselorEmail: counselor.email,
+            userName: user.full_name,
+            userEmail: user.email,
+            riskLevel: assessment.risk_level,
+            summary: assessment.summary,
+            moodScore: mood_score,
+            });
+        }
         }
 
         res.status(201).json({
@@ -89,7 +111,7 @@ const createMoodLog = async (req, res) => {
     }
     };
 
-    // GET /api/mood/today — check if logged today
+    // GET /api/mood/today
     const getTodayLog = async (req, res) => {
     try {
         const pool = getPool();
@@ -106,7 +128,7 @@ const createMoodLog = async (req, res) => {
     }
     };
 
-    // GET /api/mood/stats — mood trend data for charts
+    // GET /api/mood/stats
     const getMoodStats = async (req, res) => {
     try {
         const pool = getPool();
@@ -124,9 +146,9 @@ const createMoodLog = async (req, res) => {
         console.error('getMoodStats error:', err);
         res.status(500).json({ message: 'Server error' });
     }
-};
+    };
 
-    // GET /api/mood/weekly-summary — current user's weekly summary
+    // GET /api/mood/weekly-summary
     const getWeeklySummary = async (req, res) => {
     try {
         const pool = getPool();
@@ -165,6 +187,6 @@ const createMoodLog = async (req, res) => {
         console.error('getWeeklySummary error:', err);
         res.status(500).json({ message: 'Server error' });
     }
-    };
+};
 
 module.exports = { createMoodLog, getMyLogs, getTodayLog, getMoodStats, getWeeklySummary };
