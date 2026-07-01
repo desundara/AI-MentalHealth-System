@@ -5,6 +5,7 @@ import Logo from '../components/common/Logo';
 import ThemeToggle from '../components/common/ThemeToggle';
 import MoodTrendChart from '../components/charts/MoodTrendChart';
 import WeeklySummaryCard from '../components/charts/WeeklySummaryCard';
+import IdleWarningModal from '../components/common/IdleWarningModal';
 
 const SYMPTOMS = [
   { label: 'Fatigue', emoji: '😴' },
