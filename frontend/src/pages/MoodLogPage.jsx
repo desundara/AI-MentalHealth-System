@@ -6,6 +6,9 @@ import ThemeToggle from '../components/common/ThemeToggle';
 import MoodTrendChart from '../components/charts/MoodTrendChart';
 import WeeklySummaryCard from '../components/charts/WeeklySummaryCard';
 import IdleWarningModal from '../components/common/IdleWarningModal';
+import generateMoodReport from '../utils/MoodReportPDF';
+import { getMyLogs } from '../services/mood.service';
+import API from '../services/api';
 
 const SYMPTOMS = [
   { label: 'Fatigue', emoji: '😴' },
@@ -61,6 +64,18 @@ const MoodLogPage = () => {
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save mood log');
     } finally { setSubmitting(false); }
+  };
+
+  const handleDownloadReport = async () => {
+    const [logsRes, summaryRes] = await Promise.all([
+      getMyLogs(),
+      API.get('/mood/weekly-summary')
+    ]);
+    generateMoodReport({
+      user: { full_name: user?.full_name, email: user?.email },
+      logs: logsRes.data.logs,
+      weeklySummary: summaryRes.data
+    });
   };
 
   const mood = moodConfig(form.mood_score);
@@ -135,6 +150,16 @@ const MoodLogPage = () => {
                 {todayLog.ai_summary && <p className="mt-3 text-sm leading-relaxed text-ink-500 dark:text-ink-400">{todayLog.ai_summary}</p>}
               </div>
             )}
+
+            {/* Download report button */}
+            <div className="px-6 py-4 border-t border-ink-50 dark:border-ink-800">
+              <button
+                onClick={handleDownloadReport}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-all rounded-xl bg-verde-600 hover:bg-verde-700"
+              >
+                📄 Download Report
+              </button>
+            </div>
           </div>
         )}
 
