@@ -1,70 +1,228 @@
-# Getting Started with Create React App
+# MindCare — AI-Powered Mental Health Self-Assessment & Mood Tracking System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web-based mental health self-assessment and mood tracking system built with React.js, Node.js, and Microsoft SQL Server. Users log daily mood data and receive AI-generated risk assessments and personalised coping suggestions powered by the LLaMA 3.1 model via the Groq API.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Default Login Credentials
 
-### `npm start`
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | admin@mindcare.com | SuperAdmin@123 |
+| Counselor | counselor@mindcare.com | Counselor@123 |
+| User | Register via /register | — |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Prerequisites
 
-### `npm test`
+Before running the project, ensure you have the following installed:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Node.js** v18 or above → https://nodejs.org
+- **npm** v8 or above (comes with Node.js)
+- **Microsoft SQL Server** 2019 or above (Developer or Express Edition)
+  → https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+- **SQL Server Management Studio (SSMS)**
+  → https://aka.ms/ssmsfullsetup
+- A **Groq API key** (free) → https://console.groq.com
+- A **Gmail account** with App Password enabled for email alerts
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Database Setup
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Step 1 — Find your SQL Server instance name
+1. Open **SQL Server Management Studio (SSMS)**
+2. At the top of the Object Explorer panel, note your server name
+   (e.g. `LAPTOP-ABC\SQLEXPRESS` or just `LAPTOP-ABC`)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Step 2 — Run the schema script
+1. Open SSMS → File → Open → `backend/config/schema.sql`
+2. Click **Execute** (or press F5)
+3. You should see: `MentalHealthDB schema created successfully!`
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Backend Setup
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Step 1 — Install dependencies
+```bash
+cd backend
+npm install
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Step 2 — Configure environment variables
+1. Copy `.env.example` to `.env`
+```bash
+cp .env.example .env
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. Edit `.env` and fill in your values:
 
-## Learn More
+```env
+PORT=5000
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Replace with your SQL Server instance name from SSMS
+DB_SERVER=YOUR_SERVER_NAME
+DB_PORT=1433
+DB_NAME=MentalHealthDB
+DB_USER=sa
+DB_PASSWORD=YOUR_SA_PASSWORD
+DB_TRUSTED_CONNECTION=true
+DB_ENCRYPT=false
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Generate a secure random string (run: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=7d
 
-### Code Splitting
+# Get a free Groq API key from https://console.groq.com
+OPENAI_API_KEY=your_groq_api_key_here
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Gmail address and App Password for email alerts
+# To generate App Password: Google Account → Security → 2-Step Verification → App Passwords
+EMAIL_USER=your_gmail@gmail.com
+EMAIL_PASS=your_gmail_app_password
 
-### Analyzing the Bundle Size
+CLIENT_URL=http://localhost:3000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Step 3 — Start the backend server
+```bash
+npm run dev
+```
 
-### Making a Progressive Web App
+You should see:
+```
+✅ MSSQL Connected: MentalHealthDB
+🚀 Server running on http://localhost:5000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Frontend Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Step 1 — Install dependencies
+```bash
+cd frontend
+npm install
+```
 
-### Deployment
+### Step 2 — Configure environment
+Create a `.env` file in the `frontend` folder:
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Step 3 — Start the frontend
+```bash
+npm start
+```
 
-### `npm run build` fails to minify
+The application will open at **http://localhost:3000**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## Running the Full Application
+
+Open **two terminal windows**:
+
+**Terminal 1 — Backend:**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 — Frontend:**
+```bash
+cd frontend
+npm start
+```
+
+Then open your browser at **http://localhost:3000**
+
+---
+
+## Project Structure
+
+```
+AI-MentalHealth-System/
+├── backend/
+│   ├── config/
+│   │   ├── db.js               # MSSQL connection
+│   │   └── schema.sql          # Database schema & seed data
+│   ├── controllers/
+│   │   ├── auth.controller.js
+│   │   ├── mood.controller.js
+│   │   ├── counselor.controller.js
+│   │   ├── admin.controller.js
+│   │   └── user.controller.js
+│   ├── middleware/
+│   │   └── auth.middleware.js
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── mood.routes.js
+│   │   ├── counselor.routes.js
+│   │   ├── admin.routes.js
+│   │   └── user.routes.js
+│   ├── utils/
+│   │   ├── openai.util.js      # Groq/LLaMA AI integration
+│   │   └── email.util.js       # Nodemailer email alerts
+│   ├── .env                    # Environment variables (not in repo)
+│   ├── .env.example            # Environment variables template
+│   └── server.js
+│
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   │   ├── auth/
+    │   │   ├── charts/
+    │   │   └── common/
+    │   ├── context/
+    │   ├── hooks/
+    │   ├── pages/
+    │   ├── services/
+    │   └── utils/
+    └── package.json
+```
+
+---
+
+## Key Features
+
+- **Daily Mood Logging** — mood score, stress, anxiety, sleep, symptoms, notes
+- **AI Risk Assessment** — Low / Medium / High risk via LLaMA 3.1 (Groq API)
+- **Counselor Dashboard** — alerts, user monitoring, mood history
+- **Email Alerts** — automatic high-risk notifications to counselors
+- **Mood Trend Charts** — interactive visualisation with Recharts
+- **Weekly Summary** — average stats and risk breakdown
+- **PDF Report** — downloadable mood history report
+- **Auto Logout** — 15-minute idle timeout for security
+- **Dark Mode** — full light/dark theme support
+- **Role-Based Access** — User, Counselor, Super Admin roles
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React.js 18, Tailwind CSS 3, Recharts |
+| Backend | Node.js 20, Express 5 |
+| Database | Microsoft SQL Server 2019 |
+| AI | Groq API + LLaMA 3.1 8B Instant |
+| Auth | JWT (jsonwebtoken + bcryptjs) |
+| Email | Nodemailer (Gmail SMTP) |
+| PDF | jsPDF + jspdf-autotable |
+
+---
+
+## Important Notes
+
+- The `.env` file contains sensitive credentials and is **not included** in the submission
+- You must generate your own **Groq API key** (free at console.groq.com)
+- You must set up your own **Gmail App Password** for email alerts
+- The system is a **self-assessment tool only** and is not a clinical diagnostic instrument
+
+---
+
+*Developed by M. Gayani Desundara Samaraweera | Student No: 25027290 | COM646 Computing Project | Glyndŵr University*

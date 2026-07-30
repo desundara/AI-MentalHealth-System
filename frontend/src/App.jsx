@@ -2,43 +2,26 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
-// Pages
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminPage from './pages/AdminPage';
-import MoodLogPage from './pages/MoodLogPage';
+import UserDashboardPage from './pages/UserDashboardPage';
+import MoodHistoryPage from './pages/MoodHistoryPage';
+import UserProfilePage from './pages/UserProfilePage';
 import CounselorDashboard from './pages/CounselorDashboard';
+import NotFoundPage from './pages/NotFoundPage';
 
-// Placeholder pages (Week 2 onwards)
-import Logo from './components/common/Logo';
-import ThemeToggle from './components/common/ThemeToggle';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import IdleWarningModal from './components/common/IdleWarningModal';
-
-const PlaceholderPage = ({ title, emoji, week }) => (
-  <div className="min-h-screen transition-colors duration-300 bg-ink-50 dark:bg-ink-950">
-    <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-ink-100 dark:border-ink-800 dark:bg-ink-900">
-      <Logo size="md" />
-      <ThemeToggle />
-    </header>
-    <main className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-      <div className="mb-6 text-6xl">{emoji}</div>
-      <h2 className="mb-3 text-3xl font-bold font-display text-ink-900 dark:text-white"
-          style={{ fontFamily: 'Sora, sans-serif' }}>
-        {title}
-      </h2>
-      <p className="max-w-sm text-ink-500 dark:text-ink-400">
-        Coming in <span className="font-semibold text-verde-600 dark:text-verde-400">{week}</span>. Stay tuned!
-      </p>
-      <div className="w-16 h-1 mx-auto mt-8 rounded-full bg-verde-500" />
-    </main>
+const UnauthorizedPage = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-ink-50 dark:bg-ink-950 text-center px-4">
+    <div className="text-6xl mb-4">🔒</div>
+    <h2 className="text-2xl font-bold text-ink-900 dark:text-white mb-2">Access Restricted</h2>
+    <p className="text-ink-500 dark:text-ink-400 mb-6">You don't have permission to view this page.</p>
+    <a href="/login" className="px-6 py-3 text-sm font-semibold text-white rounded-2xl bg-verde-600 hover:bg-verde-700 transition-all">Go to Login</a>
   </div>
 );
-
-const UserDashboardPage      = () => <PlaceholderPage title="User Dashboard"       emoji="🌿" week="Week 2" />;
-const CounselorDashboardPage = () => <PlaceholderPage title="Counselor Dashboard"  emoji="🧑‍⚕️" week="Week 4" />;
-const UnauthorizedPage       = () => <PlaceholderPage title="Access Restricted"    emoji="🔒" week="N/A" />;
 
 function App() {
   return (
@@ -46,30 +29,45 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path="/login"         element={<LoginPage />} />
-            <Route path="/register"      element={<RegisterPage />} />
-            <Route path="/unauthorized"  element={<UnauthorizedPage />} />
-            
-            <Route path="/admin" element={
-              <ProtectedRoute roles={['superadmin']}>
-                <AdminPage />
+            {/* Public routes */}
+            <Route path="/"          element={<LandingPage />} />
+            <Route path="/login"     element={<LoginPage />} />
+            <Route path="/register"  element={<RegisterPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+            {/* User routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute roles={['user']}>
+                <UserDashboardPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute roles={['user']}>
+                <MoodHistoryPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute roles={['user']}>
+                <UserProfilePage />
               </ProtectedRoute>
             } />
 
-            <Route path="/dashboard" element={
-              <ProtectedRoute roles={['user']}>
-                <MoodLogPage />
-              </ProtectedRoute>
-            } />
-            
+            {/* Counselor routes */}
             <Route path="/counselor/dashboard" element={
               <ProtectedRoute roles={['counselor']}>
                 <CounselorDashboard />
               </ProtectedRoute>
             } />
 
-            <Route path="/"  element={<Navigate to="/login" replace />} />
-            <Route path="*"  element={<Navigate to="/login" replace />} />
+            {/* Admin routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute roles={['superadmin']}>
+                <AdminPage />
+              </ProtectedRoute>
+            } />
+
+            {/* 404 */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
       </AuthProvider>
